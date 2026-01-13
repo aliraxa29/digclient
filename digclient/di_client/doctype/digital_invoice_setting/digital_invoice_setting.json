@@ -1,0 +1,90 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:company",
+ "creation": "2025-06-18 13:09:27.712602",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "fbr_configuration_section",
+  "company",
+  "auto_post_invoices_on_submit",
+  "column_break_tsbd",
+  "access_token"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "fbr_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "FBR Configuration"
+  },
+  {
+   "fieldname": "column_break_tsbd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token",
+   "mandatory_depends_on": "eval:doc.enabled"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_post_invoices_on_submit",
+   "fieldtype": "Check",
+   "label": "Auto Post Invoices on submit"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-15 21:43:02.177987",
+ "modified_by": "Administrator",
+ "module": "DI Client",
+ "name": "Digital Invoice Setting",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "company",
+ "track_changes": 1
+}

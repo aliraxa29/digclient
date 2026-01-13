@@ -1,0 +1,66 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:hs_code",
+ "creation": "2025-07-15 21:59:20.146390",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "hs_code",
+  "description",
+  "uom"
+ ],
+ "fields": [
+  {
+   "fieldname": "hs_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "HS Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "HS Uom"
+  }
+ ],
+ "grid_page_length": 50,
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-16 15:05:05.935686",
+ "modified_by": "Administrator",
+ "module": "DI Client",
+ "name": "HS Code",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Desk User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

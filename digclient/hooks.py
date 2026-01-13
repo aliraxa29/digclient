@@ -8,7 +8,7 @@ app_license = "mit"
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["frappe/erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -43,7 +43,11 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+    "Sales Invoice": "public/js/doctype/sales_invoice.js",
+    "Purchase Invoice": "public/js/doctype/purchase_invoice.js",
+    "Item": "public/js/doctype/item.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -137,13 +141,13 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Sales Invoice": {
+        "before_submit": "digclient.events.before_submit.sync_fbr_invoice",
+    },
+    "Item": {"before_save": "digclient.events.before_save.item_before_save"},
+    "Company": {"before_save": "digclient.events.before_save.company_before_save"},
+}
 
 # Scheduled Tasks
 # ---------------
@@ -236,7 +240,7 @@ app_license = "mit"
 # ]
 
 # Automatically update python controller files with type annotations for this app.
-# export_python_type_annotations = True
+export_python_type_annotations = True
 
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
@@ -247,3 +251,6 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+after_migrate = "digclient.migrate.after_migrate"
+
+fixtures = [{"dt": "HS Code"}]
