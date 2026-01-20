@@ -32,7 +32,7 @@ frappe.ui.form.on("Sales Invoice", {
                 __("Digital Invoice Preview"),
                 function () {
                     frappe.call({
-                        method: "diginvoicing.utils.get_digital_invoice_preview",
+                        method: "digclient.api.get_digital_invoice_preview",
                         args: {
                             doctype: frm.doc.doctype,
                             docname: frm.doc.name,
@@ -97,7 +97,7 @@ async function setup_custom_buttons(frm, doc) {
     if (!frm.doc.is_posted && frm.doc.docstatus && doc.enabled && enable_for_customer.message.enable_digital_invoicing && frappe.user.has_role("Digi. Invoicing User") && frm.doc.docstatus !== 2) {
         frm.add_custom_button(__("Post to DI"), async () => {
             await frappe.call({
-                method: "diginvoicing.api.resync_invoice",
+                method: "digclient.api.resync_invoice",
                 args: {
                     doctype: "Sales Invoice",
                     name: frm.doc.name

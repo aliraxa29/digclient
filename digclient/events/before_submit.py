@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
-from diginvoicing.utils import _sync_fbr_invoice, is_enabled
-
+from digclient.utils import is_enabled
+from digclient.api import sync_invoice
 
 def sync_fbr_invoice(doc, method):
     """
@@ -24,5 +24,5 @@ def sync_fbr_invoice(doc, method):
                 item.hs_uom = frappe.db.get_value(
                     "HS Code", {"name": item.hs_code}, "uom"
                 )
-
-        _sync_fbr_invoice(doc)
+        
+        return sync_invoice(doc)

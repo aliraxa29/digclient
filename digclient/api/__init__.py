@@ -1,12 +1,66 @@
+from digclient.constants import DI_HOST
+from digclient.utils import get_configurations, is_enabled
 import frappe
-from digclient.digclient.utils import sync_invoice
+from frappe import _
+from frappe.utils import now
+import requests
+import requests
+
+
+@frappe.whitelist()
+def sync_invoice(doc, resync=False):
+    setting = frappe.get_doc("Digital Invoice Setting", doc.company)
+    doc = doc.as_dict()
+    if is_enabled(doc.get("company")):
+        if setting.auto_post_invoices_on_submit or resync:
+            for item in doc.get("items", []):
+                item.unit_size = (
+                    frappe.db.get_value("Item", item.get("item_code"), "unit_size") or 1
+                )
+                item.packet_size = (
+                    frappe.db.get_value(
+                        "Item", item.get("item_code"), "custom_packet_size"
+                    )
+                    or 1
+                )
+
+            token = setting.get_password("access_token")
+            settings = setting.as_dict()
+            settings["access_token"] = token
+            result = call(
+                url=f"{DI_HOST}/diginvoicing.utils.post_invoice",
+                payload={
+                    "sales_invoice": doc,
+                    "settings": settings,
+                    "configurations": get_configurations(
+                        doc.get("customer"), doc.get("supplier"), doc.get("company")
+                    ),
+                },
+            )
+            if result.get("message"):
+                frappe.db.set_value(
+                    doc.get("doctype"),
+                    doc.get("name"),
+                    {
+                        "integration_id": result.get("message"),
+                        "posting_datetime": now(),
+                        "is_posted": 1,
+                    },
+                    update_modified=False,
+                )
+            return result.get("message")
+
+    else:
+        frappe.throw(
+            _("Digital Invoicing is not enabled for company {0}").format(doc.company)
+        )
 
 
 @frappe.whitelist()
 def resync_invoice(doctype, name):
     doc = frappe.get_doc(doctype, name)
-    if doc:
-        sync_invoice(doc, True)
+    return sync_invoice(doc, resync=True)
+
 
 @frappe.whitelist()
 def get_sales_types_for_company(doctype, txt, searchfield, start, page_len, filters):
@@ -15,7 +69,7 @@ def get_sales_types_for_company(doctype, txt, searchfield, start, page_len, filt
         return []
 
     return frappe.db.sql(
-    """
+        """
         SELECT
             cs.sales_type, sales_type as description
         FROM
@@ -29,3 +83,47 @@ def get_sales_types_for_company(doctype, txt, searchfield, start, page_len, filt
     """,
         {"company": company, "txt": f"%{txt}%", "page_len": page_len, "start": start},
     )
+
+
+@frappe.whitelist()
+def get_digital_invoice_preview(doctype, docname):
+    """Return the digital invoice payload preview (without posting)."""
+    doc = frappe.get_doc(doctype, docname).as_dict()
+    for item in doc.get("items", []):
+        item.unit_size = (
+            frappe.db.get_value("Item", item.get("item_code"), "unit_size") or 1
+        )
+        item.packet_size = (
+            frappe.db.get_value("Item", item.get("item_code"), "custom_packet_size")
+            or 1
+        )
+
+    item_logs = [
+        {
+            line.item_code: frappe.db.get_value(
+                "Item Log",
+                {"reference_document": line.get("parent"), "index": line.get("idx")},
+                "index",
+            )
+        }
+        for line in doc.get("items", [])
+    ]
+    url = f"{DI_HOST}/diginvoicing.utils.get_preview"
+    result = call(
+        url=url,
+        payload={"sales_invoice": doc, "item_logs": item_logs},
+    )
+    return result.get("message")
+
+
+def call(
+    url: str,
+    payload: dict | None = None,
+    headers: dict | None = None,
+):
+    with requests.Session() as s:
+        body = frappe.as_json(payload)
+        headers = {"Content-Type": "application/json"}
+        resp = s.post(url, data=body, headers=headers, timeout=30)
+        resp.raise_for_status()
+        return resp.json()

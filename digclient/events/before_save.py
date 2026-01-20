@@ -8,9 +8,10 @@ def item_before_save(doc, method):
 
 def company_before_save(doc, method):
     seen = set()
-    for st in doc.get("sale_types"):
-        if st.sales_type in seen:
-            frappe.throw(
-                f"Duplicate scenario '{st.sales_type}' found in sales types for company '{doc.name}'."
-            )
-        seen.add(st.sales_type)
+    if hasattr(doc, "sale_types"):
+        for st in doc.get("sale_types"):
+            if st.sales_type in seen:
+                frappe.throw(
+                    f"Duplicate scenario '{st.sales_type}' found in sales types for company '{doc.name}'."
+                )
+            seen.add(st.sales_type)
