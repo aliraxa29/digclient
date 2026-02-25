@@ -39,7 +39,7 @@ frappe.ui.form.on("Sales Invoice", {
                         },
                         callback: function (r) {
                             if (r.message) {
-                                diginvoicing.digital_invoice_preview.make_dialog(r.message);
+                                digclient.digital_invoice_preview.make_dialog(r.message);
                             }
                         },
                     });
@@ -50,9 +50,9 @@ frappe.ui.form.on("Sales Invoice", {
     }
 });
 
-frappe.provide("diginvoicing.digital_invoice_preview");
+frappe.provide("digclient.digital_invoice_preview");
 
-diginvoicing.digital_invoice_preview.make_dialog = function (invoice) {
+digclient.digital_invoice_preview.make_dialog = function (invoice) {
     const columns = [
         { name: "HS Code", id: "hsCode", width: 100, editable: false },
         { name: "Description", id: "productDescription", width: 200, editable: false },

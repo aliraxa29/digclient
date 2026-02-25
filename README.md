@@ -1,6 +1,6 @@
 ### DI Client
 
-A digital invoicing client app for diginvoicing
+A digital invoicing client app
 
 ### Installation
 

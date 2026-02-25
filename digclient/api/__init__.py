@@ -1,4 +1,5 @@
 from digclient.constants import DI_HOST
+from digclient.di_client.doctype.integration_log.integration_log import create_log
 from digclient.utils import get_configurations, is_enabled
 import frappe
 from frappe import _
@@ -37,18 +38,70 @@ def sync_invoice(doc, resync=False):
                     ),
                 },
             )
-            if result.get("message"):
+            if result.get("message").get("invoiceNumber", None):
+                message = result.get("message")
+                frappe.db.delete(
+                    "Integration Log",
+                    {"document_type": doc.get("doctype"), "document_name": doc.get("name")},
+                )
+                create_log(
+                    doc.get("doctype"),
+                    doc.get("name"),
+                    message.get("payload"),
+                    message.get("response"),
+                    "Success",
+                    f"Success Dig. Invoicing Sync {doc.get('doctype')} {doc.get('name')}",
+                )
                 frappe.db.set_value(
                     doc.get("doctype"),
                     doc.get("name"),
                     {
-                        "integration_id": result.get("message"),
+                        "integration_id": message.get("invoiceNumber"),
                         "posting_datetime": now(),
                         "is_posted": 1,
                     },
                     update_modified=False,
                 )
-            return result.get("message")
+            else:
+                for item in message.get("response").get("validationResponse", {}).get("invoiceStatuses", []):
+                    status = item.get("status", "")
+                    error = item.get("error", "")
+                    item_index = str(item.get("itemSNo", ""))
+                    if (
+                        status != "Valid"
+                        and "Provided sales tax amount does not match the calculated sales tax amount. Please ensure that the provided Sale Value is used to calculate the Sales Tax Amount for the provided Rate."
+                        == error
+                    ):
+                        if not frappe.db.exists(
+                            "Item Log",
+                            {
+                                "reference_doctype": doc.get("doctype"),
+                                "reference_document": doc.get("name"),
+                                "index": item_index,
+                            },
+                        ):
+                            frappe.get_doc(
+                                {
+                                    "doctype": "Item Log",
+                                    "reference_doctype": doc.get("doctype"),
+                                    "reference_document": doc.get("name"),
+                                    "index": item.get("itemSNo", ""),
+                                }
+                            ).insert(ignore_permissions=True)
+                frappe.db.commit()
+                create_log(
+                    doc.get("doctype"),
+                    doc.get("name"),
+                    message.get("payload"),
+                    message.get("response"),
+                    status="Error",
+                    title=f"Dig. Invoicing Sync Error {doc.get('doctype')} {doc.get('name')}",
+                )
+                frappe.throw(
+                    _(
+                        "There is an error while submitting invoice to Digital Invoicing \nError: {0}"
+                    ).format(message.get("response"))
+                )
 
     else:
         frappe.throw(

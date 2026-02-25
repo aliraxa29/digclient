@@ -3,7 +3,7 @@ name = "digclient"
 authors = [
     { name = "Ali Raza", email = "soundsofnation29@gmail.com"}
 ]
-description = "A digital invoicing client app for diginvoicing"
+description = "A digital invoicing client app"
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]

@@ -1,7 +1,7 @@
 app_name = "digclient"
 app_title = "DI Client"
 app_publisher = "Ali Raza"
-app_description = "A digital invoicing client app for diginvoicing"
+app_description = "A digital invoicing client app"
 app_email = "soundsofnation29@gmail.com"
 app_license = "mit"
 
