@@ -175,12 +175,15 @@ def call(
     headers: dict | None = None,
 ):
     with requests.Session() as s:
-        body = frappe.as_json(payload)
-        headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Authorization": "token b6db3872d172f33:d5be4b5605ff60c",
-        }
-        resp = s.post(url, data=body, headers=headers, timeout=30)
-        resp.raise_for_status()
-        return resp.json()
+        try:
+            body = frappe.as_json(payload)
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": "token b6db3872d172f33:d5be4b5605ff60c",
+            }
+            resp = s.post(url, json=body, headers=headers, timeout=300)
+            resp.raise_for_status()
+            return resp.json()
+        except requests.exceptions.HTTPError as errh:
+            frappe.log_error("HTTP Error", str(errh))
