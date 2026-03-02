@@ -11,7 +11,8 @@
   "company",
   "auto_post_invoices_on_submit",
   "column_break_tsbd",
-  "access_token"
+  "access_token",
+  "sandbox"
  ],
  "fields": [
   {
@@ -49,6 +50,13 @@
    "fieldname": "auto_post_invoices_on_submit",
    "fieldtype": "Check",
    "label": "Auto Post Invoices on submit"
+  },
+  {
+   "default": "0",
+   "description": "Use FBR Sandbox environment for testing. Sandbox and Production routing is based on the access token being used.",
+   "fieldname": "sandbox",
+   "fieldtype": "Check",
+   "label": "Sandbox Mode"
   }
  ],
  "grid_page_length": 50,

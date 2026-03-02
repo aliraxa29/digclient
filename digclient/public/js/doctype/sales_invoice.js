@@ -46,6 +46,51 @@ frappe.ui.form.on("Sales Invoice", {
                 },
                 __("Preview")
             );
+
+            frm.add_custom_button(
+                __("Validate with FBR"),
+                function () {
+                    frappe.call({
+                        method: "digclient.api.validate_fbr_invoice",
+                        args: {
+                            doctype: frm.doc.doctype,
+                            docname: frm.doc.name,
+                        },
+                        freeze: true,
+                        freeze_message: __("Validating invoice with FBR..."),
+                        callback: function (r) {
+                            if (r.message) {
+                                const result = r.message;
+                                if (result.status === "Valid") {
+                                    frappe.msgprint({
+                                        title: __("FBR Validation"),
+                                        message: __("Invoice is valid according to FBR."),
+                                        indicator: "green"
+                                    });
+                                } else {
+                                    let error_details = "";
+                                    const validation = (result.response || {}).validationResponse || {};
+                                    if (validation.error) {
+                                        error_details += `<p><strong>Error:</strong> ${validation.error}</p>`;
+                                    }
+                                    const items = validation.invoiceStatuses || [];
+                                    items.forEach(item => {
+                                        if (item.status !== "Valid") {
+                                            error_details += `<p>Item ${item.itemSNo}: ${item.error || "Invalid"} (Code: ${item.errorCode || "N/A"})</p>`;
+                                        }
+                                    });
+                                    frappe.msgprint({
+                                        title: __("FBR Validation Failed"),
+                                        message: error_details || __("Invoice validation failed. Check the response for details."),
+                                        indicator: "red"
+                                    });
+                                }
+                            }
+                        },
+                    });
+                },
+                __("Preview")
+            );
         }
     }
 });
